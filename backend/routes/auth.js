@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/user");
+const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
 
 router.post(
@@ -8,7 +8,9 @@ router.post(
   [
     body("name", "Enter a valid name").isLength({ min: 3 }),
     body("email", "Enter a valid email").isEmail(),
-    body("password", "Enter a valid password").isLength({ min: 5 }),
+    body("password", "Password must be atleast 5 characters").isLength({
+      min: 5,
+    }),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -19,7 +21,15 @@ router.post(
       name: req.body.name,
       password: req.body.password,
       email: req.body.email,
-    }).then((user) => res.json(user))
+    })
+      .then((user) => res.json(user))
+      .catch((err) => {
+        console.log(err);
+        res.json({
+          error: "Please enter a unique value for email",
+          message: err.message,
+        });
+      });
   }
 );
 
