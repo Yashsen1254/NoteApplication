@@ -3,7 +3,8 @@ const router = express.Router();
 const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-var jwt = require('jsonwebtoken');
+var jwt = require("jsonwebtoken");
+const fetchuser = require("../middleware/fetchuser");
 const JWT_SEC = "secret";
 
 router.post(
@@ -35,13 +36,13 @@ router.post(
         email: req.body.email,
       });
       const data = {
-        user:{
-          id : user.id,
-        }
-      }
-      const authtoken = jwt.sign(data,JWT_SEC);
+        user: {
+          id: user.id,
+        },
+      };
+      const authtoken = jwt.sign(data, JWT_SEC);
       // res.json(user);
-      res.json({authtoken});
+      res.json({ authtoken });
     } catch (error) {
       console.log(error);
       res.status(500).json({ errors: "Server Error" });
@@ -61,27 +62,38 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const {email,password} = req.body;
+    const { email, password } = req.body;
     try {
-      let user= await User.findOne({email});
-      if(!user) {
-        return res.status(400).json({errors:"Invalid Detail"})
+      let user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ errors: "Invalid Detail" });
       }
-      const passCompare = await bcrypt.compare(password,user.password);
-      if(!passCompare) {
-        return res.status(400).json({errors:"Invalid Detail"})
+      const passCompare = await bcrypt.compare(password, user.password);
+      if (!passCompare) {
+        return res.status(400).json({ errors: "Invalid Detail" });
       }
       const data = {
-        user:{
-          id : user.id,
-        }
-      }
-      const authtoken = jwt.sign(data,JWT_SEC);
-      res.json({authtoken});
+        user: {
+          id: user.id,
+        },
+      };
+      const authtoken = jwt.sign(data, JWT_SEC);
+      res.json({ authtoken });
     } catch (error) {
       console.log(error);
       res.status(500).json({ errors: "Server Error" });
     }
-  })
+  }
+);
+
+router.post("/getuser", fetchuser, async (req, res) => {
+  try {
+    userId = "todo";
+    const user = User.findById(userId).select("-password");
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 module.exports = router;
