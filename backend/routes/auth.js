@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
+var jwt = require('jsonwebtoken');
+const JWT_SEC = "secret";
 
 router.post(
   "/createuser",
@@ -32,7 +34,14 @@ router.post(
         password: safePass,
         email: req.body.email,
       });
-      res.json(user);
+      const data = {
+        user:{
+          id : user.id,
+        }
+      }
+      const authtoken = jwt.sign(data,JWT_SEC);
+      // res.json(user);
+      res.json({authtoken});
     } catch (error) {
       console.log(error);
       res.status(500).json({ errors: "Server Error" });
