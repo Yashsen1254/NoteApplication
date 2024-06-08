@@ -5,6 +5,7 @@ const Addnote = () => {
     const context = useContext(noteContext);
     const { addNote } = context;
     const [note, setnote] = useState({title: "", description: "", tag: ""})
+
     const handelClick = (e) => {
         e.preventDefault();
         addNote(note.title, note.description, note.tag);
