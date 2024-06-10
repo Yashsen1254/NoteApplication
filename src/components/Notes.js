@@ -6,21 +6,23 @@ import Addnote from "./Addnote";
 function Notes() {
   const context = useContext(noteContext);
   const { notes, getNotes } = context;
-  const [note, setnote] = useState({etitle: "", edescription: "", etag: ""})
+  const [note, setnote] = useState({id: "", etitle: "", edescription: "", etag: ""})
 
   useEffect(() => {
     getNotes();
   }, []);
 
   const ref = useRef(null);
+  const refClose = useRef(null);
 
   const updateNote = (currentNote) => {
     ref.current.click();
-    setnote({etitle : currentNote.title, edescription : currentNote.description, etag : currentNote.tag});
+    setnote({id : currentNote._id, etitle : currentNote.title, edescription : currentNote.description, etag : currentNote.tag});
   };
 
   const handelClick = (e) => {
     e.preventDefault();
+    refClose.current.click();
   };
 
   const onChange = (e) => {
@@ -74,6 +76,8 @@ function Notes() {
                     aria-describedby="emailHelp"
                     value={note.etitle}
                     onChange={onChange}
+                    required
+                    minLength={5}
                   />
                 </div>
                 <div className="mb-3">
@@ -87,6 +91,8 @@ function Notes() {
                     name="edescription"
                     onChange={onChange}
                     value={note.edescription}
+                    required
+                    minLength={5}
                   />
                 </div>
                 <div className="mb-3">
@@ -109,10 +115,11 @@ function Notes() {
                 type="button"
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
+                ref={refClose}
               >
                 Close
               </button>
-              <button type="button" className="btn btn-primary">
+              <button type="button" className="btn btn-primary" ref={refClose} disabled={note.etitle.length<5 || note.edescription.length<5}>
                 Update Note
               </button>
             </div>
@@ -121,6 +128,7 @@ function Notes() {
       </div>
       <div className="row my-3">
         <h1>Your Notes</h1>
+        {notes.length===0 && "No notes"}
         {notes.map((note) => {
           return (
             <Noteitem key={note._id} updateNote={updateNote} note={note} />
